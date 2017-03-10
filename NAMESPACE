@@ -1,0 +1,16 @@
+## imports
+import(vegan)
+import(NMFN)
+import(DirichletReg)
+import(CompQuadForm)
+
+
+## exports
+export(rasp,
+       testRasp,
+       plotTernary,
+       genePlot,
+       plotAllIso,
+       topGenes  
+ )
+

@@ -1,0 +1,13 @@
+Package: rasp
+Type: Package
+Title: What the package does (short line)
+Version: 1.2.2
+Date: 2015-11-10
+Author: Mikel Esnaola <mesnaola@creal.cat>, Miquel Calvo <mcalvo@ub.edu> and Juan R Gonzalez <jrgonzalez@creal.cat> 
+Depends: R (>= 3.0.0), vegan, NMFN, DirichletReg, ggplot2, CompQuadForm
+Maintainer: Juan R Gonzalez <jrgonzalez@creal.cat>
+Description: To be supplied
+License: Artistic-2.0
+LazyLoad: yes
+NeedsCompilation: no
+Packaged: 2016-03-07 15:03:26 UTC; mesnaola
