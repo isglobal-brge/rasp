@@ -50,24 +50,24 @@ testRasp <- function(x, group, test="asymptotic", type="median", transformation=
         m <- apply(x > 0, 1, mean)
         nfilt <- sum(m < filter, na.rm = TRUE)
         if(nfilt > 0){
-            x <- x[m >= filter,]
+            x <- x[m >= filter, , drop = FALSE]
             warning(nfilt, " exons filtered out due to absolute frequency filter")
         }
     }
     if(filterFreq > 0){
         ## Filter exons with mean relative frequency < 'filterFreq'
-        auxa1<-colSums(x)
+        auxa1 <- colSums(x)
         auxR <- sweep(x, 2, auxa1, FUN="/")
-        mrf <- apply(auxR, 1, mean)
+        mrf <- apply(auxR, 1, mean, na.rm = TRUE)
         nffilt <- sum(mrf < filterFreq, na.rm = TRUE)
         if(nffilt > 0){
-            x <- x[mrf >= filter,]
+            x <- x[mrf >= filter, , drop = FALSE]
             warning(nffilt, " exons filtered out due to relative frequency filter")
         }
     }
     all.zero <- which(apply(x, 2, function(x) all(x==0)))
     if (length(all.zero) >= 1) {
-        x <- x[,-all.zero]
+        x <- x[, -all.zero, drop = FALSE]
         group <- group[-all.zero]
         if(any(table(group) <= 1)){
             warning("At least two non-null individuals are needed for each of the group levels")
@@ -77,20 +77,17 @@ testRasp <- function(x, group, test="asymptotic", type="median", transformation=
     group <- as.factor(group)
     n <- ncol(x)
     nS <- nrow(x)
-    method <- charmatch(test, c("asymptotic", "permutation"), nomatch=NA)
-    if (is.na(method))
-        stop(" 'test' argument should be 'asymptotic' or 'permutation'")
+    method <- charmatch(test, c("asymptotic", "permutation"), nomatch = NA)
+    if (is.na(method)) stop("'test' argument should be 'asymptotic' or 'permutation'")
 
     nlev <- nlevels(group)
     
-    if(nS == 1 || nS>maxTrans) {
-        if(testGroup)
-            out <- rep(NA, 2*(nlev + 1))
-        else
-            out <- rep(NA, nlev + 2)
+    if (nS == 1 || nS > maxTrans) {
+        if (testGroup) out <- rep(NA, 2 * (nlev + 1))
+        else out <- rep(NA, nlev + 2)
     }
     else {
-        a1<-colSums(x)
+        a1 <- colSums(x)
         R <- sweep(x, 2, a1, FUN="/")
         if (transformation) {
             R <- suppressWarnings(t(DR_data(t(R))))
