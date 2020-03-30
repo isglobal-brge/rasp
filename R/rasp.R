@@ -1,4 +1,4 @@
-rasp <- function(x, y, expressionCols, geneidCol, test = c("asymptotic", "permutation"), filter = 0.1, filterFreq = 0.05, transformation = FALSE, Nperms = 1e5-1, type = "median", pairwise = FALSE, mc.cores = 1, maxTrans = 100, testGroup = FALSE, verbose = FALSE) {
+rasp <- function(x, y, expressionCols, geneidCol, test = c("asymptotic", "permutation"), filter = 0.1, filterFreq = 0.05, transformation = FALSE, Nperms = 1e5-1, type = "median", pairwise = FALSE, cores = parallel::detectCores(), maxTrans = 100, testGroup = FALSE, verbose = FALSE) {
     # TODO: add support for formula notation.
     if (0) next
     
@@ -9,8 +9,7 @@ rasp <- function(x, y, expressionCols, geneidCol, test = c("asymptotic", "permut
             y <- design(x)
         } else if (!is.factor(y)) stop("'y' should be a factor") 
 
-        x2 <- x
-        xx <- split(x, droplevels(as.factor(geneIDs(x2))))
+        xx <- split(x, droplevels(as.factor(geneIDs(x))))
     
     } else if (class(x) == "DEXSeqDataSet") {
         if(missing(y)) {
@@ -18,8 +17,7 @@ rasp <- function(x, y, expressionCols, geneidCol, test = c("asymptotic", "permut
             y <- design(x)
         } else if (!is.factor(y)) stop("'y' should be a factor")
         
-        x2 <- x
-        xx <- split(x, droplevels(as.factor(geneIDs(x2))))
+        xx <- split(x, droplevels(as.factor(geneIDs(x))))
         
     } else if (class(x) == "RangedSummarizedExperiment") {
       # if(missing(y)) {
@@ -28,8 +26,6 @@ rasp <- function(x, y, expressionCols, geneidCol, test = c("asymptotic", "permut
       # } else if (!is.factor(y)) stop("'y' should be a factor")
       if (!is.factor(y)) stop("'y' should be a factor")
       
-      x2 <- x
-      message('Loading data...')
       xx <- lapply(split(x, names(SummarizedExperiment::rowRanges(x))), SummarizedExperiment::assay)
       
     } else {
@@ -38,20 +34,22 @@ rasp <- function(x, y, expressionCols, geneidCol, test = c("asymptotic", "permut
     }
     
     # Compute over all genes.
-    pb <- txtProgressBar(max = length(xx), style = 3)
+    # pb <- txtProgressBar(max = length(xx), style = 3)
     
-    ans <- list()
-    # doParallel::registerDoParallel(cores = parallel::detectCores())
-    # ans <- foreach::`%dopar%`(foreach::foreach (nm = 1:length(xx)), {
-    for (nm in 1:length(xx)) {
-      if (all(xx[[nm]] == 0)) ans[[nm]] <- NA # mlm crashes on empty (0 count) and single-exon genes.
-      else if (nrow(xx[[nm]]) == 1) ans[[nm]] <- NA # mlm crashes on single exon genes.
-      else ans[[nm]] <- mlm::mlm(t(xx[[nm]]) ~ y)$aov.tab["y", "Pr(>F)"]
-      
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
-    }#)
+    # ans <- list()
+    cl <- parallel::makeCluster(cores)
+    doParallel::registerDoParallel(cl)
+    
+    ans <- foreach::`%dopar%`(foreach::foreach (nm = 1:length(xx)), {
+      # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+      if (all(xx[[nm]] == 0)) NA # mlm crashes on empty (0 count) and single-exon genes.
+      else if (nrow(xx[[nm]]) == 1) NA # mlm crashes on single exon genes.
+      else mlm::mlm(t(xx[[nm]]) ~ y)$aov.tab["y", "Pr(>F)"]
+    })
+    
+    parallel::stopCluster(cl)
 
-    setTxtProgressBar(pb, length(xx))
+    # setTxtProgressBar(pb, length(xx))
     
     # Post-process results.
     out <- do.call(rbind, ans) # TODO: substitute by unlist.
