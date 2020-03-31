@@ -1,60 +1,77 @@
-rasp <- function(x, formula, expressionCols, geneidCol, filterFreq=0.05, transform = "none", type="II",
-                 contrasts = NULL, mc.cores=1){
+# expressionCols: character or integer vector specifying the columns with expr data (samples).
+# geneidCol: name or number of the column encoding the gene IDs.
 
-  filt <- TRUE # to be supplied  ....  related to filterFreq 
-  
-  if(inherits(x, "DEXSeqDataSet") | inherits(x, "RangedSummarizedExperiment")){
-    
-    if (missing(formula) & inherits(x, "DEXSeqDataSet")){
-        warning("'formula' was not specified, the design of 'x' will be used instead")
-        y <- model.matrix(design(x), data=colData(x))
+rasp <- function(x, y, expressionCols, geneidCol, cores = parallel::detectCores()) {
+    if (class(formula) == "formula") {
+      next
     }
+    
+    # TODO: Maybe remove support for ExonCountSet, since is deprecated.
+    if (class(x) == "ExonCountSet") {
+        warning("'ExonCountSet' is deprecated, please use a 'DEXSeqDataSet' object.")
+        if(missing(y)) {
+            warning("'y' was not specified, the design of 'x' will be used instead")
+            y <- design(x)
+        } else if (!is.factor(y)) stop("'y' should be a factor") 
+
+        x <- split(x, droplevels(as.factor(geneIDs(x))))
+    
+    } else if (class(x) == "DEXSeqDataSet") {
+        if(missing(y)) {
+            warning("'y' was not specified, the design of 'x' will be used instead")
+            y <- design(x)
+        } else if (!is.factor(y)) stop("'y' should be a factor")
+        
+        x <- split(x, droplevels(as.factor(geneIDs(x))))
+        
+    } else if (class(x) == "SummarizedExperiment" ||
+               class(x) == "RangedSummarizedExperiment") {
+      # if(missing(y)) {
+      #   warning("'y' was not specified, the design of 'x' will be used instead")
+      #   y <- design(x)
+      # } else if (!is.factor(y)) stop("'y' should be a factor")
+      if (!is.factor(y)) stop("'y' should be a factor")
       
-    else if(!missing(formula) & inherits(x, "DEXSeqDataSet"))  {
-       y <- model.matrix(formula, data=colData(x))
+      x <- lapply(split(x, names(SummarizedExperiment::rowRanges(x))), SummarizedExperiment::assay)
+      
+    } else {
+        if (!is.factor(y)) stop("'y' should be a factor")
+        x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
     }
-    else{
-     stop ("formula must be provided in the argument 'formula'")        
-    }
-    x2 <- x
-    xx <- split(x, droplevels(as.factor(geneIDs(x2)[filt])))
-}
-
     
-masterDesc <- try(get("masterDescriptor",envir = getNamespace("parallel")), TRUE)
-if (mc.cores>1){
-    if (class(masterDesc) == "try-error")
-        stop("It appears you are trying to use multiple cores from Windows, this is not possible")
-    mclapp <- try(get("mclapply", envir = getNamespace("parallel")), TRUE)
-    detectCor <- try(get("detectCores", envir = getNamespace("parallel")),TRUE)
-    nAvailableCores <- detectCor()
-    coreID <- mclapp(as.list(1:mc.cores), function(x) masterDesc(),
-                     mc.cores = mc.cores)[[1]]
-    xx<-xx[mclapp(xx,nrow,mc.cores=mc.cores)>1]
-    xx<-mclapp(xx,t,mc.cores=mc.cores)
-    n<-length(xx)
-    1
-    cl <- parallel::makeForkCluster(mc.cores)
+    # Compute over all genes.
+    # pb <- txtProgressBar(max = length(x), style = 3)
+    
+    cl <- parallel::makeCluster(cores)
     doParallel::registerDoParallel(cl)
-    p.values<-foreach(i = 1:n, .combine="rbind" ) %dopar%{
-        ans <- mlm(xx[[i]]~y,type=type)
-        ans[[2]][1,6]
-    }
+    
+    ans <- foreach::`%dopar%`(foreach::foreach (nm = names(x)), {
+      # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+      if (all(x[[nm]] == 0)) NA # mlm crashes on empty (0 count) and single-exon genes.
+      else if (nrow(x[[nm]]) == 1) NA # mlm crashes on single exon genes.
+      else mlm::mlm(t(x[[nm]]) ~ y)$aov.tab["y", "Pr(>F)"]
+    })
+    
     parallel::stopCluster(cl)
-}
-else {
-    xx<-xx[lapply(xx,nrow)>1]
-    xx<-lapply(xx,t)
-    n<-length(xx)
-    p.values<-numeric(n)
-    for (i in 1:n) {
-        ans <- mlm(xx[[i]] ~ y, type=type, transform=transform, contrast=contrast, ...)
-        p.values[i]<-ans[[2]][1,6]
-    }
-}
-colnames(p.values)<-"p.value"
-out<-cbind("gene_id"=names(xx), p.values)
-class(out)<-c("rasp", "matrix")
-out
-}
 
+    # setTxtProgressBar(pb, length(x))
+    
+    # Post-process results.
+    # out <- do.call(rbind, ans) # TODO: substitute by unlist.
+    pvals <- as.matrix(unlist(ans))
+    # nlev <- nlevels(y)
+    # pvals <- out[, -c(1:(nlev + 1)), drop = FALSE]
+    # pvals <- out[, 1, drop = FALSE] # TODO: remove this, just call pvals the previous 'out' variable.
+    # if(ncol(pvals) > 1) pvals[, 2:ncol(pvals)] <- t(apply(pvals[,2:ncol(pvals)], 1, p.adjust, method = "holm"))
+    pvals.adj <- apply(pvals, 2, p.adjust, "BH")
+    # colnames(pvals.adj) <- gsub("pvalue", "padjust", colnames(pvals.adj))
+    # out <- as.data.frame(cbind(out, pvals.adj))
+    out <- as.data.frame(cbind(pvals, pvals.adj))
+    names(out) <- c("pvalue", "padjust")
+    rownames(out) <- names(x)
+    class(out) <- c("data.frame", "rasp")
+    
+    # close(pb)
+    
+    out
+}
