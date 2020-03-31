@@ -1,7 +1,12 @@
 # expressionCols: character or integer vector specifying the columns with expr data (samples).
 # geneidCol: name or number of the column encoding the gene IDs.
 
-rasp <- function(x, y, expressionCols, geneidCol, cores = parallel::detectCores()) {
+rasp <- function(formula, x, expressionCols, geneidCol, filterInd = 0.1 ,
+                 filterExon = 0.05, 
+                 transform = "none",
+                 cores = parallel::detectCores() -1, ...) {
+    
+    
     # Prepare data list.
     if (class(x) == "DEXSeqDataSet") {
         if(missing(y)) {
@@ -13,16 +18,23 @@ rasp <- function(x, y, expressionCols, geneidCol, cores = parallel::detectCores(
 
     } else if (class(x) == "SummarizedExperiment" ||
                class(x) == "RangedSummarizedExperiment") {
-      # if(missing(y)) {
-      #   warning("'y' was not specified, the design of 'x' will be used instead")
-      #   y <- design(x)
-      # } else if (!is.factor(y)) stop("'y' should be a factor")
-      if (!is.factor(y)) stop("'y' should be a factor")
+      
+      vars <- all.vars(formula)
+      
+      if(any(!vars%in%colnames(colData(x))))
+        stop("variables in the formula should be in the metadata (e.g. 'colData()')")
+      
+      data <- colData(x)[, vars, drop=FALSE]
+      colnames(data)[1] <- "group"
+      
+      if (!is.factor(data$group)) stop(paste(vars[1], "should be a factor"))
 
-      x <- lapply(split(x, names(SummarizedExperiment::rowRanges(x))), SummarizedExperiment::assay)
+      x <- lapply(split(x, BiocGenerics::rownames(x)), 
+                  SummarizedExperiment::assay)
 
     } else {
-        if (!is.factor(y)) stop("'y' should be a factor")
+        data <- data.frame(group=formula)
+        if (!is.factor(data$group)) stop("'y' should be a factor")
         x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
     }
 
@@ -33,7 +45,9 @@ rasp <- function(x, y, expressionCols, geneidCol, cores = parallel::detectCores(
     ans <- foreach::`%dopar%`(foreach::foreach (nm = names(x)), {
       if (all(x[[nm]] == 0)) NA # mlm crashes on empty (0 count) and single-exon genes.
       else if (nrow(x[[nm]]) == 1) NA # mlm crashes on single exon genes.
-      else mlm::mlm(t(x[[nm]]) ~ y)$aov.tab["y", "Pr(>F)"]
+      else testRasp(t(x[[nm]]), data=data, 
+                    filterInd = filterInd , filterExon = filterExon, 
+                    transform = transform, ...)
     })
 
     parallel::stopCluster(cl)
