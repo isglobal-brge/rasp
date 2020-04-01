@@ -33,12 +33,13 @@ rasp <- function(formula, x, expressionCols, geneidCol,
                   SummarizedExperiment::assay)
 
     } else {
-        data <- data.frame(group=formula)
-        if (!is.factor(data$group)) stop("'y' should be a factor")
-        x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
+      if (missing(group))
+        stop("Providing count data as a data.frame requires a grouping variable to be passed through 'group' argument")
+      data <- data.frame(group=group)
+      if (!is.factor(data$group)) stop("'y' should be a factor")
+      x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
     }
 
-    # Compute over all genes.
     cl <- parallel::makeCluster(cores)
     doSNOW::registerDoSNOW(cl)
     pb <- txtProgressBar(max = length(x), style = 3)

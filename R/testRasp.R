@@ -9,14 +9,17 @@ testRasp <- function(x, data, filterInd, filterExon, transform, ...) {
         stop("'group' variable contains missing values")
   
     # Filter individuals (samples).
-    if (filterInd) {
-        m <- rowMeans(x > 0)
+    if (filterInd > 0){
+        m <- apply(x > 0, 1, mean)
         nfilt <- sum(m < filterInd, na.rm = TRUE)
-        if (nfilt) {
-            ind.keep <- m >= filterInd
-            x <- x[ind.keep, , drop = FALSE]
-            warning(nfilt, " individuals filtered out given 'filterInd' argument")
-            # TODO: if all individuals excluded, return NA.
+        if (nfilt > 0){
+            if (nfilt == nrow(x)) return(NA)
+            else {
+                ind.keep <- m >= filterInd
+                x <- x[ind.keep, , drop=FALSE]
+                warning(nfilt, " individuals filtered out given 'filterInd' argument")
+                if (nrow(x) == 1) return(NA)
+            }
         }
         else ind.keep <- TRUE
     }
