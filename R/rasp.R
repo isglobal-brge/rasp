@@ -1,7 +1,7 @@
 # expressionCols: character or integer vector specifying the columns with expr data (samples).
 # geneidCol: name or number of the column encoding the gene IDs.
 
-rasp <- function(formula, x, expressionCols, geneidCol,
+rasp <- function(formula, x, group, expressionCols, geneidCol,
                  filterInd = 0.1,
                  filterExon = 0.05, 
                  transform = "none",
@@ -42,12 +42,13 @@ rasp <- function(formula, x, expressionCols, geneidCol,
       x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
     }
 
-    cl <- parallel::makeCluster(cores)
-    doSNOW::registerDoSNOW(cl)
-    pb <- txtProgressBar(max = length(x), style = 3)
-    opts <- list(progress = function(i) setTxtProgressBar(pb, i))
+    if (length(x) > 1){
+      cl <- parallel::makeCluster(cores)
+      doSNOW::registerDoSNOW(cl)
+      pb <- txtProgressBar(max = length(x), style = 3)
+      opts <- list(progress = function(i) setTxtProgressBar(pb, i))
     
-    ans <- foreach::`%dopar%`(foreach::foreach (i = 1:length(x),
+      ans <- foreach::`%dopar%`(foreach::foreach (i = 1:length(x),
                                                 .export = "testRasp",
                                                 .options.snow = opts), {
       nm <- names(x)[i]
@@ -57,23 +58,31 @@ rasp <- function(formula, x, expressionCols, geneidCol,
                     filterInd = filterInd,
                     filterExon = filterExon, 
                     transform = transform, ...)
-    })
+      })
     
-    close(pb)
-    parallel::stopCluster(cl)
+     close(pb)
+     parallel::stopCluster(cl)
+    } else{
+      ans <- testRasp(t(x[[1]]), data=data, 
+               filterInd = filterInd,
+               filterExon = filterExon, 
+               transform = transform, ...)
+    }
 
     # Post-process results.
     pvals <- as.matrix(unlist(ans))
     if (nrow(pvals) > 1){
+      nexons <- sapply(x, nrow)
       pvals.adj <- apply(pvals, 2, p.adjust, "BH")
-      out <- cbind(pvals, pvals.adj)
+      out <- cbind(nexons, pvals, pvals.adj)
       rownames(out) <- names(x)
-      colnames(out) <- c("pvalue", "padjust")
+      colnames(out) <- c("n.exons", "pvalue", "padjust")
     }
     else{
-      out <- pvals
+      nexons <- nrow(x[[1]])
+      out <- cbind(nexons, pvals)
       rownames(out) <- names(x)
-      colnames(out) <- "pvalue"
+      colnames(out) <- c("n.exons", "pvalue")
     }
       
     class(out) <- c("rasp", "matrix")

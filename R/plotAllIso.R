@@ -1,7 +1,13 @@
 plotAllIso <- function(gene, data, group, jitterWidth = 0,
                        inds, isos){
     require(ggplot2)
-    x <- data[data$gene_id == gene,]
+    if (is.data.frame(data))
+        x <- data[data$gene_id == gene,]
+    else if (inherits(data, "RangedSummarizedExperiment") |
+             inherits(data, "SummarizedExperiment")){
+        x <- lapply(split(data, gene), SummarizedExperiment::assay)[[1]]
+        group <- colData(data)[,group]
+    }
     if(!missing(isos)){
         if(is.character(isos))
             x <- x[x$transcript_id%in%isos,]

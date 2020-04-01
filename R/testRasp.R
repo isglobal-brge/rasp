@@ -32,11 +32,15 @@ testRasp <- function(x, data, filterInd, filterExon, transform, ...) {
         mrf <- colMeans(auxR)
         nffilt <- sum(mrf < filterExon, na.rm = TRUE)
         if(nffilt > 0){
-            x <- x[, mrf >= filterExon]
+          if(nffilt == ncol(x)) return(NA)
+          else{
+            x <- x[, mrf >= filterExon, drop=FALSE]
             warning(nffilt, " exons filtered out given 'filterExon' argument")
-            # TODO: if all exons excluded, return NA.
+            if (ncol(x) == 1) return(NA)
+          }
         }
     }
+    
     
     data <- data[ind.keep, , drop=FALSE]
     
@@ -47,7 +51,7 @@ testRasp <- function(x, data, filterInd, filterExon, transform, ...) {
     mod <- try(mlm::mlm(x ~ ., data=data, transform=transform, ...), TRUE)
     if (!inherits(mod, "try-error")) 
         ans <- mod$aov.tab["group", "Pr(>F)"]
-    else 
-        ans <- NA
+    else return(NA) 
+        
     return(ans)
 }

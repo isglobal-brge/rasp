@@ -2,7 +2,7 @@
 title: "rasp: analysis of alternative splicing through splicing ratios"
 author:
 - name: Jinxing Wei
-affiliation:
+  affiliation:
   - &uab Department of Mathematics, Autonomous University of Barcelona (UAB)
 - name: Pol Cuscó
   affiliation:
@@ -45,7 +45,7 @@ We should start the R session by loading the library as usual:
 library(rasp)
 ```
 
-We will start loading into the workspace the data corresponding to the initial table of transcipt expression estimates provided by  @GonCalSam12. The RNA-seq data correspond to lymphoblastoid cell lines derived from 69 unrelated Nigerian individuals produced by @PicMarPai10. More than half billion 35-bp-long reads were sequenced. Reads were mapped to the human genome version hg19 using GEM mapper @GEM. After that, mapped reads were used to obtain transcipt expression estimates using GENCODE version 3c produced in the framework of the ENCODE project as the reference genome annotation. Finally, Flux Capacitor was used to produce estimates of transcript abundances measured as RPKMs. Data was filtered to have only information about protein-coding genes expressed in all individuals, having at least two annotated splice forms and isoforms with an expresion level of at least 1 RPKM in at least one individual. These filters lead to a total of 1654 genes and 4668 associated transcripts @GonCalSam12. The object containing this information can be loaded by typing:
+We will start loading into the workspace the data corresponding to the initial table of transcript expression estimates provided by  @GonCalSam12. The RNA-seq data correspond to lymphoblastoid cell lines derived from 69 unrelated Nigerian individuals produced by @PicMarPai10. More than half billion 35-bp-long reads were sequenced. Reads were mapped to the human genome version hg19 using GEM mapper @GEM. After that, mapped reads were used to obtain transcipt expression estimates using GENCODE version 3c produced in the framework of the ENCODE project as the reference genome annotation. Finally, Flux Capacitor was used to produce estimates of transcript abundances measured as RPKMs. Data was filtered to have only information about protein-coding genes expressed in all individuals, having at least two annotated splice forms and isoforms with an expresion level of at least 1 RPKM in at least one individual. These filters lead to a total of 1654 genes and 4668 associated transcripts @GonCalSam12. The object containing this information can be loaded by typing:
 
 ```{r load_YRI}
 data(YRI)
@@ -67,7 +67,7 @@ We are aware that this is not the proper way of encapsulating omic data since, f
 
 # Data Visualization
 
-For each gene $n$ alternative splice forms (transcripts or exons) are observed. Therfore, for a given gene, and for each individual $j$, the relative expression of each transcipt, $i$ $i=1, \ldots, n$ is computed as:
+For each gene $n$ alternative splice forms (exons or transcripts) are computed from count data Therfore, for a given gene, and for each individual $j$, the relative expression of each exon, $i=1, \ldots, n$ is computed as:
 %
 \begin{equation}
 f_{ij} =  \frac{x_{ij}}{\sum_{i=1}^{n}x_{ij}} 
@@ -88,76 +88,108 @@ Notice that the argument `transcript` indicates the three transcripts to be repr
 plotAllIso("ENSG00000005448", data = YRI, group = genderYRI,
                       inds = 1:10)
 ```
+
 # Data analysis
 
-A single gene can be analyzed using the `testRasp()` function. For instance, let us investigate whether the splicing ratios of the gene ENSG00000160741 containing 3 different transcripts are different between males and females (Figure \ref{fig:plotTernary}). 
+The splicing ratio for a single gene can be analyzed using the `rasp()` function. For instance, let us investigate whether the splicing ratios of the gene ENSG00000160741 containing 3 different transcripts are different between males and females (Figure \ref{fig:plotTernary}). 
 
-The p-value can be obtained by typing
+We first need to select the counts corresponding to the gene of interest 
 
-```{r test_gene} 
-gene <- YRI[YRI$gene_id=="ENSG00000160741", ]
-mod <- rasp(x=gene, group=genderYRI, 
-            geneidCol = 1, expressionCols = 3:ncol(gene))
-mod
+```{r get_counts_gene} 
+counts.gene <- YRI[YRI$gene_id=="ENSG00000160741", ]
 ```
 
-The first of the two p-values, {\tt p.homogeneity}, represents the p-value resulting from the test for dispersion while the second one, {\tt pvalue}, is the resulting p-value from the location test. The location test is sensitive to hetereogeneity in the dispersion of points of each group and, as a result, both p-values should always be taken into account. In this case, the dispersion p-value is highly non-significant, while the location p-value shows that there are significant differences in the splicing patterns among males and females. The ternary plot in Figure \ref{fig_simplex_gender} also shows some differences across sexes. One can observe that females tend to have more RPKMs in the transcript ENST0000046.
+And then the p-value is computed by
 
-\begin{figure}[!h]
-\begin{center}
-<<fig=TRUE, echo=FALSE>>=
-plotTernary(YRI, "ENSG00000160741", transcripts=1:3, group=genderYRI)
-@
-\end{center}
-\caption{Ternary plot corresponding to the splicing ratios of three transcripts (1st, 2nd and 3rd) belonging to gene ENSG00000160741 for males and females.}
-\label{fig_simplex_gender}
-\end{figure}
+```{r test_gene} 
+pval <- rasp(x=gene, group=genderYRI, 
+            geneidCol = 1, expressionCols = 3:ncol(gene))
+pval
+```
 
-\clearpage
+Notice that three arguments must be specified. First, which vector is having the groupin variable (`group`). Then, which column is having the gene ids (`gendidCol`) and then the columns having the counts or expression (`expressionCols`) in the `x` agument.
 
-\newpage
+The result shows  a highly sifnificant p-value indicanting that there are statistically significant differences in the splicing patterns among males and females. The ternary plot in Figure \ref{fig:plotTernary} also shows some differences across sexes. One can observe that females tend to have more RPKMs in the transcript ENST0000046.
 
-This process can be performed using multiple processors when analyzing several genes. This procedure is implemented in the main function of \Rasp~ called \Rfunction{rasp()}:
 
-<<>>=
+More than one gene can also be analyzed using `rasp()` function.  It is performed by using multiple processors when available. Let us analyze, for instance, the first 5 genes can be studied by
+
+```{r rasp}
 ngenes <- 5
-sel.genes <-  names(table(YRI[,1]))[1:ngenes]
-res <- rasp(YRI[YRI[,1]%in%sel.genes, ], genderYRI, mc.cores = 1, 
+sel.genes <-  names(table(YRI$gene_id))[1:ngenes]
+YRI.subset <- subset(YRI, gene_id%in%sel.genes)
+res <- rasp(x=YRI.subset, group=genderYRI, mc.cores = 3, 
             geneidCol = 1, expressionCols = 3:ncol(YRI))
-@
+```
 
-Note that we have only selected 5 genes among the existing ones in order to avoid computational problems.  Also notice that the function has several arguments beside the data and group objects. Firstly, it allows the user to use several cores during the computations ({\tt mc.cores} argument). Secondly, three diffent tests are allowed. Finally, three arguments must be specified to tell which columns of the original dataset are the \emph{gene id}, \emph{transcript id} and \emph{expression} respectively.
 
-The centroids of each group, the p-values and BH adjusted p-values can be obtained by executing:
+Notice again that having data in that simple format requires several arguments to be passed through the function as previously illustrated. The argument `mc.cores` allows the user to pre-define the number of cores used. If missing, it considers `parallel::detectCores() - 1`. We can see the p-values of each gene by printing the results
 
-<<>>=
-print(res)
-@
+```{r print_rasp}
+res
+```
 
-\subsection{Test for groups with more than two levels}
+# Analysis with `RangedSummarizedExperiment` objects
 
-As shown previously {\tt rasp} performs a test that looks for differences in splicing ratios across all possible conditions of a certaing group variable. Sometimes researchers might be interested in testing whether the individuals of a specific subgroup or condition have significant differences in the splicing ratios compared to the rest of conditions. We have developed a test that, for a given group with more than two levels, performs a permutation test comparing each of the conditions against the rest. This can be done specifying {\tt testGroup = TRUE} in both the {\tt rasp} and {\tt testRasp} functions, as shown in the following code.
+As previously mentioned the `RangedSummarizedExperiment` is designed to properely manage exon/transcript count data. In order to illustrate how to perform differential splicing analyses using `rasp` we have added into the package an object of this class which contains exon counts measured in adipose tissue from GTEx samples. The object has been donwloaded from [recount](https://jhubiostatistics.shinyapps.io/recount/) and, for illustrating purposes, we have selected the information corresponding to the chromosome 16 and have added a covariable to the metadata called `inv16p11.2` which contains the inversion genotypes obtained as described in @ruiz2019scoreinvhap.  
 
-<<results=hide>>=
-set.seed(1234)
-g <- as.character(genderYRI)
-g[g == "female"] <- ifelse(runif(sum(g == "female"))<.5, "female1", "female2")
-resG <- rasp(YRI[YRI[,1]%in%sel.genes, ], factor(g), mc.cores = 1,
-             geneidCol = 1, expressionCols = 3:ncol(YRI), testGroup = TRUE)
-@ 
+```{r load_data_adipose}
+data(adipose)
+adipose.chr16
+```
 
-<<>>=
-print(resG)
-@ 
+The total number of genes are
+
+```{r number_genes}
+length(unique(rownames(adipose.chr16)))
+```
+
+One of the advantadges of using `RangedSummarizedObjects` is that we can easily subset a genomic region and then perfrom downstream analyses. Let us assume that we are interested in studing whether the inversion genotypes are associated with the alternative splicing in the inversion region (chr16:28,42Mb-28,79Mb). The region of interest can be easily subset by
+
+```{r subset}
+roi <- GRanges("chr16:25e6-30e6")
+adipose <- subsetByOverlaps(adipose.chr16, roi)
+adipose
+```
+
+Now the number of genes contained in the object are:
+
+```{r n_genes_roi}
+length(unique(rownames(adipose)))
+```
+
+
+The analysis is the performed by
+
+```{r rasp_adipose}
+pvals <- rasp( formula = ~ inv16p11.2, x = adipose)
+head(pvals)
+```
+
+Notice that here the grouping variable is indicated in the formula. This allows to create adjusted analysis by other covariates that should be available in the metadata (e.g. `colData()`)
+
+The analyses can return  p.values as `NA`. It is cause due to the filtering process that is applied to both individuals and exons (see `filterInd` and `filterExon` arguments). Analysis cannot be performed for those genes having no samples or two or more exons. 
+
+The top genes can be obtained by
+
+```{r top}
+topGenes(pvals)
+```
+
+We observe that the gene ENSG00000197165 (SULT1A2) is hihgly differentially spliced. We can observe as the splicing ratios of exons 11 and 12 are hihgly different among inversion genotypes and as the N allele increase the splicing ratio of exon 10 and decreases for exon 11. Interestingly this inversion and SULT1A2 gene expression have been associated with obesity @gonzalez2019polymorphic, and we see that there is a differntial splicing ratio of inversion genotypes in adipose tissue which is, obiously, a key tissue for obesity.
+
+```{r plotAllIsoAdipose, fig.cap="Isforoms plot for lung tissue (GTEx) and inversion 16p11.2. Plot showing splicing ratios of each inversion genotype for all exons in gene ENSG00000197165.10 ."}
+plotAllIsoRSE("ENSG00000197165.10", data = adipose, 
+              group = "inv16p11.2", ind=1:100, iso=9:12)
+```
 
 # References
 
-\clearpage
 
-\section{Session info}
+# Session info
 
-<<>>=
+```{r sessionInfo}
 sessionInfo()
-@
+```
 
 

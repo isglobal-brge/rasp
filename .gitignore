@@ -22,8 +22,10 @@
 .httr-oauth
 
 # knitr and R markdown default cache directories
-/*_cache/
-/cache/
+vignettes/*_cache
+vignettes/cache
+vignettes/*_files
+
 
 # Temporary files created by R markdown
 *.utf8.md
