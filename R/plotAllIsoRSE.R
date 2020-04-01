@@ -1,9 +1,9 @@
 plotAllIsoRSE <- function(gene, data, group, jitterWidth = 0,
                        inds, isos){
     sel <- which(rownames(data)%in%gene)
-    x <- assay(data[sel,])
+    x <- SummarizedExperiment::assay(data[sel,])
     rownames(x) <- paste("exon", 1:nrow(x))
-    group <- colData(data)[,group]
+    group <- SummarizedExperiment::colData(data)[,group]
    
      if(!missing(isos)){
         if(is.character(isos))

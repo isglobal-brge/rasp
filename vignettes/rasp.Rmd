@@ -102,7 +102,7 @@ counts.gene <- YRI[YRI$gene_id=="ENSG00000160741", ]
 And then the p-value is computed by
 
 ```{r test_gene} 
-pval <- rasp(x=gene, group=genderYRI, 
+pval <- rasp(x=counts.gene, group=genderYRI, 
             geneidCol = 1, expressionCols = 3:ncol(gene))
 pval
 ```
@@ -114,7 +114,7 @@ The result shows  a highly sifnificant p-value indicanting that there are statis
 
 More than one gene can also be analyzed using `rasp()` function.  It is performed by using multiple processors when available. Let us analyze, for instance, the first 5 genes can be studied by
 
-```{r rasp}
+```{r rasp, results=FALSE}
 ngenes <- 5
 sel.genes <-  names(table(YRI$gene_id))[1:ngenes]
 YRI.subset <- subset(YRI, gene_id%in%sel.genes)
@@ -147,6 +147,8 @@ length(unique(rownames(adipose.chr16)))
 One of the advantadges of using `RangedSummarizedObjects` is that we can easily subset a genomic region and then perfrom downstream analyses. Let us assume that we are interested in studing whether the inversion genotypes are associated with the alternative splicing in the inversion region (chr16:28,42Mb-28,79Mb). The region of interest can be easily subset by
 
 ```{r subset}
+library(GenomicRanges)
+library(IRanges)
 roi <- GRanges("chr16:25e6-30e6")
 adipose <- subsetByOverlaps(adipose.chr16, roi)
 adipose
@@ -161,8 +163,13 @@ length(unique(rownames(adipose)))
 
 The analysis is the performed by
 
-```{r rasp_adipose}
+```{r rasp_adipose, results=FALSE}
 pvals <- rasp( formula = ~ inv16p11.2, x = adipose)
+```
+
+These are the pvalues
+
+```{r show_pvals}
 head(pvals)
 ```
 

@@ -1,16 +1,13 @@
 ## imports
-import(vegan)
-import(NMFN)
 import(DirichletReg)
-import(CompQuadForm)
-
+import(SummarizedExperiment)
 
 ## exports
 export(rasp,
-       testRasp,
        plotTernary,
        genePlot,
        plotAllIso,
-       topGenes  
+       topGenes,
+       plotAllIsoRSE
  )
 
