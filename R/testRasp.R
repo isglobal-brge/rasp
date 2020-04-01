@@ -39,6 +39,9 @@ testRasp <- function(x, data, filterInd, filterExon, transform, ...) {
     
     data <- data[ind.keep, , drop=FALSE]
     
+    ss <- rowSums(x)
+    x <- sweep(x, 1, FUN="/", ss) 
+    
     mod <- try(mlm::mlm(x ~ ., data=data, transform=transform, ...), TRUE)
     if (!inherits(mod, "try-error"))
         out <- mod$aov.tab["group", "Pr(>F)"]

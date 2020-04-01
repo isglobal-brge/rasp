@@ -1,7 +1,7 @@
 # expressionCols: character or integer vector specifying the columns with expr data (samples).
 # geneidCol: name or number of the column encoding the gene IDs.
 
-rasp <- function(formula, x, group, expressionCols, geneidCol, filterInd = 0.1 ,
+rasp <- function(formula, x, group, geneidCol, expressionCols, filterInd = 0.1 ,
                  filterExon = 0.05, 
                  transform = "none",
                  cores = parallel::detectCores() -1, ...) {
@@ -37,6 +37,8 @@ rasp <- function(formula, x, group, expressionCols, geneidCol, filterInd = 0.1 ,
         stop("Providing count data as a data.frame requires a grouping variable to be passed through 'group' argument")
       data <- data.frame(group=group)
       if (!is.factor(data$group)) stop("'y' should be a factor")
+      if (missing(expressionCols) | missing(geneidCol))
+        stop("arguments 'geneidCol' and 'expressionCols' must be provided")
       x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
     }
 
@@ -56,11 +58,18 @@ rasp <- function(formula, x, group, expressionCols, geneidCol, filterInd = 0.1 ,
 
     # Post-process results.
     pvals <- as.matrix(unlist(ans))
-    pvals.adj <- apply(pvals, 2, p.adjust, "BH")
-    out <- cbind(pvals, pvals.adj)
-    rownames(out) <- names(x)
-    colnames(out) <- c("pvalue", "padjust")
+    if (nrow(pvals) > 1){
+      pvals.adj <- apply(pvals, 2, p.adjust, "BH")
+      out <- cbind(pvals, pvals.adj)
+      rownames(out) <- names(x)
+      colnames(out) <- c("pvalue", "padjust")
+    }
+    else{
+      out <- pvals
+      rownames(out) <- names(x)
+      colnames(out) <- "pvalue"
+    }
+      
     class(out) <- c("rasp", "matrix")
-
     out
 }

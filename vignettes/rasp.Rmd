@@ -75,65 +75,31 @@ f_{ij} =  \frac{x_{ij}}{\sum_{i=1}^{n}x_{ij}}
 %
 where $x_{ij}$ denotes the transcript expression estimates (either as RPKMs or counts). Therefore, we consider as a outcome the vector of splicing proportions for the $j$ individual, $f_{j}=(f_{1j}, \ldots,f_{nj})$. This multivariate nature of the data is the reason why @GonCalSam12 proposed to use the methodology described in @Anderson06 to compare groups. 
 
-This type of data is also known as compositional data and can be represented in the simplex using the function `plotTernary()` as illustrate Figure \ref{fig_simplex} that can be obtained by typing
+This type of data is also known as compositional data and can be represented in the simplex using the function `plotTernary()` as illustrate Figure \ref{fig:plotTernary} that can be obtained by typing
 
-```{r plotTernary}
+```{r plotTernary, fig.cap="Ternary plot. Ternary plot corresponding to the splicing ratios of three transcripts (1st, 2nd and 3rd) belonging to gene ENSG00000160741."}
 plotTernary(YRI, "ENSG00000160741", transcripts=1:3)
 ```
 
 
-\noindent Notice that the argument {\tt transcript} indicates the three transcripts to be represented in the Ternary plot.
+Notice that the argument `transcript` indicates the three transcripts to be represented in the Ternary plot. An obvious limitation of the Ternary Plot is that it can oly plot data for three different transcripts. In order to plot the splicing ratios for any number of transcripts one can use the function `{\tt `plotAllIso()`. The result is a plot showing the splicing ratios for all selected transcripts and individuals. 
 
-\begin{figure}[h]
-\begin{center}
-<<fig=TRUE, echo=FALSE>>=
-plotTernary(YRI, "ENSG00000160741", transcripts=1:3)
-@
-\end{center}
-\caption{Ternary plot corresponding to the splicing ratios of three transcripts (1st, 2nd and 3rd) belonging to gene ENSG00000160741.}
-\label{fig_simplex}
-\end{figure}
-
-\clearpage
-
-An obvious limitation of the Ternary Plot is that it can oly plot data for three different transcripts. In order to plot the splicing ratios for any number of transcripts one can use the function {\tt plotAllIso}. The result is a plot showing the splicing ratios for all selected transcripts and individuals. 
-
-
-\begin{figure}[!h]
-\begin{center}
-<<fig=TRUE, echo=FALSE>>=
+```{r plotAllIso, fig.cap="Isforoms plot. Plot showing splicing ratios of all transcripts in gene ENSG00000005448."}
 plotAllIso("ENSG00000005448", data = YRI, group = genderYRI,
                       inds = 1:10)
-@
-\end{center}
-\caption{Plot showing splicing ratios of all transcripts in gene ENSG00000005448.}
-\label{fig_simplex}
-\end{figure}
+```
+# Data analysis
 
+A single gene can be analyzed using the `testRasp()` function. For instance, let us investigate whether the splicing ratios of the gene ENSG00000160741 containing 3 different transcripts are different between males and females (Figure \ref{fig:plotTernary}). 
 
-\clearpage
+The p-value can be obtained by typing
 
-\section{Data analysis}
-
-A single gene can be analyzed using the {\tt testRasp} function. For instance, let us investigate whether the splicing ratios of the gene ENSG00000160741 containing 3 different transcripts are different between males and females (Figure \ref{fig_ENSG00000160741}). 
-
-
-\begin{figure}[!h]
-\begin{center}
-\includegraphics{ENSG00000160741}
-\end{center}
-\caption{Ternary plot corresponding to the splicing ratios of three transcripts (1st, 2nd and 3rd) belonging to gene ENSG00000160741 for males and females.}
-\label{fig_ENSG00000160741}
-\end{figure}
-
-
-
-\noindent The p-value can be obtained by typing
-<<>>=
-gene <- YRI[YRI$gene_id=="ENSG00000160741", 3:ncol(YRI)]
-mod <- testRasp(gene, genderYRI)
+```{r test_gene} 
+gene <- YRI[YRI$gene_id=="ENSG00000160741", ]
+mod <- rasp(x=gene, group=genderYRI, 
+            geneidCol = 1, expressionCols = 3:ncol(gene))
 mod
-@
+```
 
 The first of the two p-values, {\tt p.homogeneity}, represents the p-value resulting from the test for dispersion while the second one, {\tt pvalue}, is the resulting p-value from the location test. The location test is sensitive to hetereogeneity in the dispersion of points of each group and, as a result, both p-values should always be taken into account. In this case, the dispersion p-value is highly non-significant, while the location p-value shows that there are significant differences in the splicing patterns among males and females. The ternary plot in Figure \ref{fig_simplex_gender} also shows some differences across sexes. One can observe that females tend to have more RPKMs in the transcript ENST0000046.
 
