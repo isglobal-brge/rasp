@@ -1,11 +1,11 @@
 # expressionCols: character or integer vector specifying the columns with expr data (samples).
 # geneidCol: name or number of the column encoding the gene IDs.
 
-rasp <- function(formula, x, group, geneidCol, expressionCols, filterInd = 0.1 ,
+rasp <- function(formula, x, expressionCols, geneidCol,
+                 filterInd = 0.1,
                  filterExon = 0.05, 
                  transform = "none",
-                 cores = parallel::detectCores() -1, ...) {
-    
+                 cores = parallel::detectCores() -1 , ...) {
     
     # Prepare data list.
     if (class(x) == "DEXSeqDataSet") {
@@ -21,10 +21,10 @@ rasp <- function(formula, x, group, geneidCol, expressionCols, filterInd = 0.1 ,
       
       vars <- all.vars(formula)
       
-      if(any(!vars%in%colnames(colData(x))))
+      if (any(!vars %in% colnames(SummarizedExperiment::colData(x))))
         stop("variables in the formula should be in the metadata (e.g. 'colData()')")
       
-      data <- colData(x)[, vars, drop=FALSE]
+      data <- SummarizedExperiment::colData(x)[, vars, drop=FALSE]
       colnames(data)[1] <- "group"
       
       if (!is.factor(data$group)) stop(paste(vars[1], "should be a factor"))
@@ -43,17 +43,23 @@ rasp <- function(formula, x, group, geneidCol, expressionCols, filterInd = 0.1 ,
     }
 
     cl <- parallel::makeCluster(cores)
-    doParallel::registerDoParallel(cl)
+    doSNOW::registerDoSNOW(cl)
+    pb <- txtProgressBar(max = length(x), style = 3)
+    opts <- list(progress = function(i) setTxtProgressBar(pb, i))
     
-    ans <- foreach::`%dopar%`(foreach::foreach (nm = names(x)), {
-      if (all(x[[nm]] == 0)) NA # mlm crashes on empty (0 count) and single-exon genes.
+    ans <- foreach::`%dopar%`(foreach::foreach (i = 1:length(x),
+                                                .export = "testRasp",
+                                                .options.snow = opts), {
+      nm <- names(x)[i]
+      if (all(x[[nm]] == 0)) NA # mlm crashes on empty (0 count) genes.
       else if (nrow(x[[nm]]) == 1) NA # mlm crashes on single exon genes.
-      else testRasp(t(x[[nm]]), data=data, 
-                    filterInd = filterInd , filterExon = filterExon, 
+      else testRasp(t(x[[nm]]), data = data, 
+                    filterInd = filterInd,
+                    filterExon = filterExon, 
                     transform = transform, ...)
     })
-
     
+    close(pb)
     parallel::stopCluster(cl)
 
     # Post-process results.
