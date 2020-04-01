@@ -4,13 +4,21 @@ testRasp <- function(x, data, filterInd, filterExon, transform, ...) {
         stop("number of individuals doesn't match")
     if(any(is.na(data$group)))
         stop("'group' variable contains missing values")
+    
     if(filterInd > 0){
         m <- apply(x > 0, 1, mean)
         nfilt <- sum(m < filterInd, na.rm = TRUE)
         if(nfilt > 0){
-            ind.keep <- m >= filterInd
-            x <- x[ind.keep,]
-            warning(nfilt, " individuals filtered out given 'filterInd' argument")
+            if (nfilt==nrow(x)){
+                return(NA)
+            }
+            else{
+                ind.keep <- m >= filterInd
+                x <- x[ind.keep, , drop=FALSE]
+                warning(nfilt, " individuals filtered out given 'filterInd' argument")
+                if(nrow(x)==1)
+                 return(NA)
+            }
         }
         else{
             ind.keep <- rep(TRUE, nrow(x))
@@ -23,10 +31,11 @@ testRasp <- function(x, data, filterInd, filterExon, transform, ...) {
         mrf <- colMeans(auxR)
         nffilt <- sum(mrf < filterExon, na.rm = TRUE)
         if(nffilt > 0){
-            x <- x[, mrf >= filter]
+            x <- x[, mrf >= filterExon]
             warning(nffilt, " exons filtered out given 'filterExon' argument")
         }
     }
+    
     
     data <- data[ind.keep, , drop=FALSE]
     

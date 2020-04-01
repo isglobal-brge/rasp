@@ -1,7 +1,7 @@
 # expressionCols: character or integer vector specifying the columns with expr data (samples).
 # geneidCol: name or number of the column encoding the gene IDs.
 
-rasp <- function(formula, x, expressionCols, geneidCol, filterInd = 0.1 ,
+rasp <- function(formula, x, group, expressionCols, geneidCol, filterInd = 0.1 ,
                  filterExon = 0.05, 
                  transform = "none",
                  cores = parallel::detectCores() -1, ...) {
@@ -33,15 +33,16 @@ rasp <- function(formula, x, expressionCols, geneidCol, filterInd = 0.1 ,
                   SummarizedExperiment::assay)
 
     } else {
-        data <- data.frame(group=formula)
-        if (!is.factor(data$group)) stop("'y' should be a factor")
-        x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
+      if (missing(group))
+        stop("Providing count data as a data.frame requires a grouping variable to be passed through 'group' argument")
+      data <- data.frame(group=group)
+      if (!is.factor(data$group)) stop("'y' should be a factor")
+      x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))
     }
 
-    # Compute over all genes.
     cl <- parallel::makeCluster(cores)
     doParallel::registerDoParallel(cl)
-
+    
     ans <- foreach::`%dopar%`(foreach::foreach (nm = names(x)), {
       if (all(x[[nm]] == 0)) NA # mlm crashes on empty (0 count) and single-exon genes.
       else if (nrow(x[[nm]]) == 1) NA # mlm crashes on single exon genes.
@@ -50,6 +51,7 @@ rasp <- function(formula, x, expressionCols, geneidCol, filterInd = 0.1 ,
                     transform = transform, ...)
     })
 
+    
     parallel::stopCluster(cl)
 
     # Post-process results.
