@@ -23,12 +23,15 @@ rasp(
 \item{x}{expression dataset. Can be of class `DEXSeqDataSet`, `SummarizedExperiment` or
 `RangedSummarizedExperiment`. A `matrix` or `data.frame` is also accepted.}
 
-\item{group}{a `factor` representing the condition of each individual. Required if `x` is a `matrix` or `data.fame`, ignored otherwise.}
+\item{group}{a `factor` representing the condition of each individual.
+Required if `x` is a `matrix` or `data.fame`, ignored otherwise.}
 
 \item{expressionCols}{character or integer vector specifying the columns of `x` with that contain
-the expression data (i.e. the different samples). Required if `x` is a `matrix` or `data.fame`, ignored otherwise.}
+the expression data (i.e. the different samples).
+Required if `x` is a `matrix` or `data.fame`, ignored otherwise.}
 
-\item{geneidCol}{name or index of the column of `x` encoding the gene IDs. Required if `x` is a `matrix` or `data.fame`, ignored otherwise.}
+\item{geneidCol}{name or index of the column of `x` encoding the gene IDs.
+Required if `x` is a `matrix` or `data.fame`, ignored otherwise.}
 
 \item{filterInd}{filter individuals (samples) with mean relative frequency < `filterInd`.}
 
@@ -55,5 +58,5 @@ data(adipose)
 rasp(~ inv16p11.2, adipose.chr16)
 
 data("YRI")
-rasp(x = YRI, group = sample(1:2, nrow(YRI), replace = TRUE), expressionCols = 3:71, geneidCol = "gene_id")
+rasp(x = YRI, group = attr(YRI, "gender"), expressionCols = 3:71, geneidCol = "gene_id")
 }

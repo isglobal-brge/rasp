@@ -7,10 +7,13 @@
 #' @param formula a `formula` wiith a symbolic description of the model to be fitted.
 #' @param x expression dataset. Can be of class `DEXSeqDataSet`, `SummarizedExperiment` or
 #'  `RangedSummarizedExperiment`. A `matrix` or `data.frame` is also accepted.
-#' @param group a `factor` representing the condition of each individual. Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
+#' @param group a `factor` representing the condition of each individual.
+#'   Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
 #' @param expressionCols character or integer vector specifying the columns of `x` with that contain
-#' the expression data (i.e. the different samples). Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
-#' @param geneidCol name or index of the column of `x` encoding the gene IDs. Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
+#'   the expression data (i.e. the different samples).
+#'   Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
+#' @param geneidCol name or index of the column of `x` encoding the gene IDs.
+#'   Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
 #' @param filterInd filter individuals (samples) with mean relative frequency < `filterInd`.
 #' @param filterExon filter exons with mean relative frequency < `filterFreq`.
 #' @param transform argument for `mlm`. Can be any of `none`, `sqrt` or `log`.
@@ -23,7 +26,7 @@
 #' rasp(~ inv16p11.2, adipose.chr16)
 #' 
 #' data("YRI")
-#' rasp(x = YRI, group = sample(1:2, nrow(YRI), replace = TRUE), expressionCols = 3:71, geneidCol = "gene_id")
+#' rasp(x = YRI, group = attr(YRI, "gender"), expressionCols = 3:71, geneidCol = "gene_id")
 #' @import parallel
 #' @import SummarizedExperiment
 #' @import BiocGenerics
