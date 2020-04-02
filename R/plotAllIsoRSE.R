@@ -1,9 +1,8 @@
 #' @import ggplot2
 #' @export
-plotAllIsoRSE <- function(gene, data, group, jitterWidth = 0,
-                       inds, isos){
-    sel <- which(rownames(data)%in%gene)
-    x <- SummarizedExperiment::assay(data[sel,])
+plotAllIsoRSE <- function(gene, data, group, jitterWidth = 0, inds, isos){
+    sel <- which(rownames(data) %in% gene)
+    x <- SummarizedExperiment::assay(data[sel, ])
     rownames(x) <- paste("exon", 1:nrow(x))
     group <- SummarizedExperiment::colData(data)[,group]
    
