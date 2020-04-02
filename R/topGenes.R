@@ -1,3 +1,4 @@
+#' @export
 topGenes <- function (x, n = 6L, sort.by = "pvalue", pval.adjust.cutoff = 1, print = TRUE, ...) 
 {
     if (!inherits(x, "rasp")) 

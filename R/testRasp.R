@@ -26,7 +26,7 @@ testRasp <- function(x, data, filterInd, filterExon, transform, ...) {
   
     # Filter exons.
     if (filterExon) {
-        ## Filter exons with mean relative frequency < 'filterFreq'
+        # Filter exons with mean relative frequency < 'filterFreq'
         auxa1 <- rowSums(x)
         auxR <- sweep(x, 1, auxa1, FUN="/")
         mrf <- colMeans(auxR)

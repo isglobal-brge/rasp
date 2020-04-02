@@ -1,3 +1,4 @@
+#' @export
 genePlot <- function(data, gene, condition = NULL, fileName = NULL, factor = 0.5, title = FALSE,
                      ylab1 = "gene expression (counts)", ylab2 = "exon relative abundance", col = blues9[3:9], exons = NULL){
     if(!inherits(data, "ExonCountSet"))

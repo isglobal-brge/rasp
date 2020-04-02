@@ -1,3 +1,4 @@
+#' @export
 plotTernary <- function(x, gene, group, geneCol=1, transCol=2, transcripts, ...) {
  
   if (missing(transcripts))

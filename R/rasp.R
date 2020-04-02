@@ -1,6 +1,35 @@
-# expressionCols: character or integer vector specifying the columns with expr data (samples).
-# geneidCol: name or number of the column encoding the gene IDs.
-
+#' rasp
+#' 
+#' Differential alternative splicing test.
+#' 
+#' Test for differential alternative splicing across two or more conditions.
+#' 
+#' @param formula a `formula` wiith a symbolic description of the model to be fitted.
+#' @param x expression dataset. Can be of class `DEXSeqDataSet`, `SummarizedExperiment` or
+#'  `RangedSummarizedExperiment`. A `matrix` or `data.frame` is also accepted.
+#' @param group a `factor` representing the condition of each individual. Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
+#' @param expressionCols character or integer vector specifying the columns of `x` with that contain
+#' the expression data (i.e. the different samples). Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
+#' @param geneidCol name or index of the column of `x` encoding the gene IDs. Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
+#' @param filterInd filter individuals (samples) with mean relative frequency < `filterInd`.
+#' @param filterExon filter exons with mean relative frequency < `filterFreq`.
+#' @param transform argument for `mlm`. Can be any of `none`, `sqrt` or `log`.
+#' @param cores `integer`. Number of parallel processes to use.
+#' @param ... additional arguments passed to `mlm`.
+#' @return A `rasp` class `matrix` containing the p-values (also adjusted for multiple testing).
+#'   `NA` will be returned for single exon genes and genes not passing filtering criteria.
+#' @examples
+#' data(adipose)
+#' rasp(~ inv16p11.2, adipose.chr16)
+#' 
+#' data("YRI")
+#' rasp(x = YRI, group = sample(1:2, nrow(YRI), replace = TRUE), expressionCols = 3:71, geneidCol = "gene_id")
+#' @import parallel
+#' @import SummarizedExperiment
+#' @import BiocGenerics
+#' @import doSNOW
+#' @import foreach
+#' @export
 rasp <- function(formula, x, group, expressionCols, geneidCol,
                  filterInd = 0.1,
                  filterExon = 0.05, 
@@ -36,7 +65,7 @@ rasp <- function(formula, x, group, expressionCols, geneidCol,
       if (missing(group))
         stop("Providing count data as a data.frame requires a grouping variable to be passed through 'group' argument")
       data <- data.frame(group=group)
-      if (!is.factor(data$group)) stop("'y' should be a factor")
+      if (!is.factor(data$group)) stop("'group' should be a factor")
       if (missing(expressionCols) | missing(geneidCol))
         stop("arguments 'geneidCol' and 'expressionCols' must be provided")
       x <- split(x[, expressionCols], droplevels(as.factor(x[, geneidCol])))

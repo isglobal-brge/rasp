@@ -1,3 +1,5 @@
+#' @import ggplot2
+#' @export
 plotAllIso <- function(gene, data, group, jitterWidth = 0,
                        inds, isos){
     require(ggplot2)

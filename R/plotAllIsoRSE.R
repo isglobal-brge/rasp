@@ -1,3 +1,5 @@
+#' @import ggplot2
+#' @export
 plotAllIsoRSE <- function(gene, data, group, jitterWidth = 0,
                        inds, isos){
     sel <- which(rownames(data)%in%gene)

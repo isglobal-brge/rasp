@@ -10,3 +10,5 @@ Maintainer: Juan R Gonzalez <juanr.gonzalez@isglobal.org>
 Description: To be supplied
 License: MIT
 LazyLoad: yes
+Encoding: UTF-8
+RoxygenNote: 7.1.0
