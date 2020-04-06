@@ -12,7 +12,7 @@
 #' data(adipose)
 #' plotAllIso("ENSG00000003249.13", adipose.chr16, "inv16p11.2")
 #' 
-#' data("YRI")
+#' data(YRI)
 #' plotAllIso("ENSG00000215915", YRI, attr(YRI, "gender"))
 #' @import ggplot2
 #' @export
