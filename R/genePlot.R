@@ -1,5 +1,3 @@
-
-#' @import ggplot2
 # TODO: export when supporting DEXSeqDataSet or RSE.
 genePlot <- function(data, gene, condition = NULL, fileName = NULL, factor = 0.5, title = FALSE,
                      ylab1 = "gene expression (counts)", ylab2 = "exon relative abundance",

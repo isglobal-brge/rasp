@@ -4,8 +4,15 @@ Title: Differential alternative splicing test.
 Version: 1.4.0
 Date: 2020-03-09
 Author: Juan R Gonzalez <juanr.gonzalez@isglobal.org> 
-Depends: R (>= 3.5.0), DirichletReg, ggplot2, SummarizedExperiment
-Imports: mlm
+Depends: R (>= 3.5)
+Imports:
+  DirichletReg,
+  doSNOW,
+  foreach,
+  ggplot2,
+  mlm,
+  parallel,
+  SummarizedExperiment
 Maintainer: Juan R Gonzalez <juanr.gonzalez@isglobal.org>
 Description: Test for differential alternative splicing across two or more conditions.
 License: MIT

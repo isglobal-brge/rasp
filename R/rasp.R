@@ -27,11 +27,10 @@
 #' 
 #' data("YRI")
 #' rasp(x = YRI, group = attr(YRI, "gender"), expressionCols = 3:71, geneidCol = "gene_id")
-#' @import parallel
-#' @import SummarizedExperiment
-#' @import BiocGenerics
-#' @import doSNOW
-#' @import foreach
+# @import parallel
+# @import SummarizedExperiment
+# @import doSNOW
+# @import foreach
 #' @export
 rasp <- function(formula, x, group, expressionCols, geneidCol,
                  filterInd = 0.1,
@@ -61,8 +60,7 @@ rasp <- function(formula, x, group, expressionCols, geneidCol,
       
       if (!is.factor(data$group)) stop(paste(vars[1], "should be a factor"))
 
-      x <- lapply(split(x, BiocGenerics::rownames(x)), 
-                  SummarizedExperiment::assay)
+      x <- lapply(split(x, rownames(x)), SummarizedExperiment::assay)
 
     } else {
       if (missing(group))

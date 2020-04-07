@@ -31,5 +31,5 @@ data(adipose)
 plotTernary(adipose.chr16, "ENSG00000003249.13", transcripts = c(2, 4, 7))
 
 data(YRI)
-plotTernary(YRI, "ENSG00000163374", transcripts = c(4, 9, 10))
+plotTernary(YRI, "ENSG00000160741")
 }

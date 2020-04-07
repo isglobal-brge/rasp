@@ -15,9 +15,9 @@
 #' plotTernary(adipose.chr16, "ENSG00000003249.13", transcripts = c(2, 4, 7))
 #' 
 #' data(YRI)
-#' plotTernary(YRI, "ENSG00000163374", transcripts = c(4, 9, 10))
-#' @import SummarizedExperiment
-#' @import DirichletReg
+#' plotTernary(YRI, "ENSG00000160741")
+# @import SummarizedExperiment
+# @import DirichletReg
 #' @export
 plotTernary <- function(x, gene, group, geneCol = 1, transCol = 2, transcripts, ...) {
   if (missing(transcripts)) transcripts <- 1:3
