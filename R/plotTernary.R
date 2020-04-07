@@ -16,8 +16,6 @@
 #' 
 #' data(YRI)
 #' plotTernary(YRI, "ENSG00000160741")
-# @import SummarizedExperiment
-# @import DirichletReg
 #' @export
 plotTernary <- function(x, gene, group, geneCol = 1, transCol = 2, transcripts, ...) {
   if (missing(transcripts)) transcripts <- 1:3

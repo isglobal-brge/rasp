@@ -14,7 +14,6 @@
 #' 
 #' data(YRI)
 #' plotAllIso("ENSG00000215915", YRI, attr(YRI, "gender"))
-# @import ggplot2
 #' @export
 plotAllIso <- function(gene, data, group, jitterWidth = 0, inds, isos) {
     if (is.data.frame(data))

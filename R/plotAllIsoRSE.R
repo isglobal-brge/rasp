@@ -9,7 +9,6 @@
 #' @examples
 #' data(adipose)
 #' plotAllIsoRSE("ENSG00000003249.13", adipose.chr16, "inv16p11.2")
-# @import ggplot2
 #' @export
 plotAllIsoRSE <- function(gene, data, group, jitterWidth = 0, inds, isos) {
     sel <- which(rownames(data) %in% gene)

@@ -27,10 +27,6 @@
 #' 
 #' data("YRI")
 #' rasp(x = YRI, group = attr(YRI, "gender"), expressionCols = 3:71, geneidCol = "gene_id")
-# @import parallel
-# @import SummarizedExperiment
-# @import doSNOW
-# @import foreach
 #' @export
 rasp <- function(formula, x, group, expressionCols, geneidCol,
                  filterInd = 0.1,
