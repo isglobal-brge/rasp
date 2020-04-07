@@ -19,14 +19,15 @@ Required if `data` is a `matrix` or `data.fame`, ignored otherwise.}
 
 \item{inds}{`character` or `numeric` vector. Plot only the specified individuals (samples).}
 
-\item{isos}{`character` or `numeric` vector. Plot only the specified exons.
-#' @examples
+\item{isos}{`character` or `numeric` vector. Plot only the specified exons.}
+}
+\description{
+Plot proportional exon expression
+}
+\examples{
 data(adipose)
 plotAllIso("ENSG00000003249.13", adipose.chr16, "inv16p11.2")
 
 data(YRI)
-plotAllIso("ENSG00000215915", YRI, attr(YRI, "gender"))}
-}
-\description{
-Plot proportional exon expression
+plotAllIso("ENSG00000215915", YRI, attr(YRI, "gender"))
 }

@@ -4,12 +4,12 @@
 #' 
 #' Test for differential alternative splicing across two or more conditions.
 #' 
-#' @param formula a `formula` wiith a symbolic description of the model to be fitted.
+#' @param formula a `formula` with a symbolic description of the model to be fitted.
 #' @param x expression dataset. Can be of class `DEXSeqDataSet`, `SummarizedExperiment` or
 #'  `RangedSummarizedExperiment`. A `matrix` or `data.frame` is also accepted.
 #' @param group a `factor` representing the condition of each individual.
 #'   Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
-#' @param expressionCols character or integer vector specifying the columns of `x` with that contain
+#' @param expressionCols `character` or `numeric` vector specifying the columns of `x` with that contain
 #'   the expression data (i.e. the different samples).
 #'   Required if `x` is a `matrix` or `data.fame`, ignored otherwise.
 #' @param geneidCol name or index of the column of `x` encoding the gene IDs.

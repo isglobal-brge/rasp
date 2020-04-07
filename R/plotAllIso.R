@@ -8,7 +8,7 @@
 #' @param jitterWidth amount of graphical jitter to use in the plot.
 #' @param inds `character` or `numeric` vector. Plot only the specified individuals (samples).
 #' @param isos `character` or `numeric` vector. Plot only the specified exons.
-#'#' @examples
+#' @examples
 #' data(adipose)
 #' plotAllIso("ENSG00000003249.13", adipose.chr16, "inv16p11.2")
 #' 

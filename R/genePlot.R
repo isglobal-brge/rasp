@@ -1,14 +1,18 @@
-#' @export
+
+#' @import ggplot2
+# TODO: export when supporting DEXSeqDataSet or RSE.
 genePlot <- function(data, gene, condition = NULL, fileName = NULL, factor = 0.5, title = FALSE,
-                     ylab1 = "gene expression (counts)", ylab2 = "exon relative abundance", col = blues9[3:9], exons = NULL){
+                     ylab1 = "gene expression (counts)", ylab2 = "exon relative abundance",
+                     col = blues9[3:9], exons = NULL) {
     if(!inherits(data, "ExonCountSet"))
         stop("'data' must be of class 'ExonCountSet'")
     if(is.null(condition))
         condition <- pData(data)$condition
-    if(nlevels(condition) != 2)
-        stop("At the moment, only two levels are accepted for 'condition'")
     if(!inherits(condition, "factor"))
         condition <- as.factor(condition)
+    if(nlevels(condition) != 2)
+        stop("Only two levels are accepted for 'condition'")
+
     if(is.null(fileName))
         fileName <- paste0(gene,".pdf")
     conditionLevs <- levels(condition)
@@ -17,10 +21,8 @@ genePlot <- function(data, gene, condition = NULL, fileName = NULL, factor = 0.5
     if(length(geneix) == 0)
         stop("gene not found")
     exonCounts <- counts(data)[geneix,]
-    exonNames <- unlist(lapply(strsplit(names(ids[geneix]), ":"),
-                               function(x)
-                               x[2]
-                               ))
+    exonNames <- sapply(strsplit(names(ids[geneix]), ":"), '[', 2)
+
     if(!is.null(exons)){
         if(!any(exons%in%exonNames))
             stop("Could not find selected 'exons'")
@@ -45,9 +47,9 @@ genePlot <- function(data, gene, condition = NULL, fileName = NULL, factor = 0.5
     require(grDevices)
     unsaturate <- function(col, factor) {
         rgb <- col2rgb(col)
-        r <- rgb["red",]
-        g <- rgb["green",]
-        b <- rgb["blue",]
+        r <- rgb["red", ]
+        g <- rgb["green", ]
+        b <- rgb["blue", ]
         conv <- as.list(as.data.frame(t(rgb2hsv(r, g, b))))
         conv[[2]] <- pmin(1, conv[[2]] * factor)
         do.call(hsv, conv)
