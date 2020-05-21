@@ -48,13 +48,18 @@ We should start the R session by loading the library as usual:
 library(rasp)
 ```
 
-We will start loading into the workspace the data corresponding to the initial table of transcript expression estimates provided by  @GonCalSam12. The RNA-seq data correspond to lymphoblastoid cell lines derived from 69 unrelated Nigerian individuals produced by @PicMarPai10. More than half billion 35-bp-long reads were sequenced. Reads were mapped to the human genome version hg19 using GEM mapper @GEM. After that, mapped reads were used to obtain transcipt expression estimates using GENCODE version 3c produced in the framework of the ENCODE project as the reference genome annotation. Finally, Flux Capacitor was used to produce estimates of transcript abundances measured as RPKMs. Data was filtered to have only information about protein-coding genes expressed in all individuals, having at least two annotated splice forms and isoforms with an expresion level of at least 1 RPKM in at least one individual. These filters lead to a total of 1654 genes and 4668 associated transcripts @GonCalSam12. The object containing this information can be loaded by typing:
+We will start loading into the workspace the data corresponding to the initial table of transcript expression estimates provided by @GonCalSam12. The RNA-seq data correspond to lymphoblastoid cell lines derived from 69 unrelated Nigerian individuals produced by @PicMarPai10. More than half billion 35-bp-long reads were sequenced. Reads were mapped to the human genome version hg19 using GEM mapper @GEM. After that, mapped reads were used to obtain transcipt expression estimates using GENCODE version 3c produced in the framework of the ENCODE project as the reference genome annotation. Finally, Flux Capacitor was used to produce estimates of transcript abundances measured as RPKMs. Data was filtered to have only information about protein-coding genes expressed in all individuals, having at least two annotated splice forms and isoforms with an expresion level of at least 1 RPKM in at least one individual. These filters lead to a total of 1641 genes and 4668 associated transcripts @GonCalSam12. The object containing this information can be loaded by typing:
 
 ```{r load_YRI}
 data(YRI)
 dim(YRI)
 ```
 
+From an excerpt of YRI, we can see the first two columns containing the gene and transcript Ensembl IDs, respectively, and then the expression values for all samples in the rest of the columns.
+
+```{r inspect_YRI}
+YRI[1:6, 1:6]
+```
 
 The object also contains information about gender of each sample that will be used as a grouping factor to illustrate comparison among conditions:
 
@@ -195,11 +200,10 @@ plotAllIsoRSE("ENSG00000197165.10", data = adipose,
 
 # References
 
+<div id="refs"></div>
 
 # Session info
 
 ```{r sessionInfo}
 sessionInfo()
 ```
-
-

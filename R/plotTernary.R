@@ -22,7 +22,8 @@ plotTernary <- function(x, gene, group, geneCol = 1, transCol = 2, transcripts, 
   else if (!inherits(transcripts, "numeric")) stop("'transcripts' must be a numeric index")
   else if (length(transcripts) != 3) stop("Please specify 3 transcripts")
 
-  if (inherits(x, "RangedSummarizedExperiment")) {
+  if (inherits(x, "RangedSummarizedExperiment") |
+      inherits(x, "SummarizedExperiment")) {
     xx <- SummarizedExperiment::assay(x)[grep(gene, rownames(x)), ]
   } else {
     xx <- x[x[, 1] == gene, ]

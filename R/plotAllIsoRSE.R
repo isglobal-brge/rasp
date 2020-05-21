@@ -16,7 +16,7 @@ plotAllIsoRSE <- function(gene, data, group, jitterWidth = 0, inds, isos) {
     rownames(x) <- paste("exon", 1:nrow(x))
     group <- SummarizedExperiment::colData(data)[, group]
    
-     if (!missing(isos)) {
+    if (!missing(isos)) {
         if (is.character(isos))
             x <- x[x$transcript_id %in% isos, ]
         else

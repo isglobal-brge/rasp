@@ -5,6 +5,7 @@
 #'  `RangedSummarizedExperiment`. A `matrix` or `data.frame` is also accepted.
 #' @param group a `factor` representing the condition of each individual.
 #'   Required if `data` is a `matrix` or `data.fame`, ignored otherwise.
+#' @param gene_col name of the column that contains the gene IDs.
 #' @param jitterWidth amount of graphical jitter to use in the plot.
 #' @param inds `character` or `numeric` vector. Plot only the specified individuals (samples).
 #' @param isos `character` or `numeric` vector. Plot only the specified exons.
@@ -15,11 +16,11 @@
 #' data(YRI)
 #' plotAllIso("ENSG00000215915", YRI, attr(YRI, "gender"))
 #' @export
-plotAllIso <- function(gene, data, group, jitterWidth = 0, inds, isos) {
+plotAllIso <- function(gene, data, group, gene_col = 'gene_id', jitterWidth = 0, inds, isos) {
     if (is.data.frame(data))
-        x <- data[data$gene_id == gene, ]
+        x <- data[data[[gene_col]] == gene, ]
     else if (inherits(data, "RangedSummarizedExperiment") |
-             inherits(data, "SummarizedExperiment")){
+             inherits(data, "SummarizedExperiment")) {
         x <- SummarizedExperiment::assay(data)[rownames(data) == gene, ]
         group <- SummarizedExperiment::colData(data)[, group]
     }
