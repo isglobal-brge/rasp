@@ -4,6 +4,9 @@ author:
 - name: Jinxing Wei
   affiliation:
   - &uab Department of Mathematics, Autonomous University of Barcelona (UAB)
+- name: Mikel Esnaola
+  affiliation:
+  - &isglobal Bioinformatics Research Group in Epidemiolgy (BRGE), Barcelona Insitute for Global Health (ISGlobal)
 - name: Pol Cuscó
   affiliation:
   - &isglobal Bioinformatics Research Group in Epidemiolgy (BRGE), Barcelona Insitute for Global Health (ISGlobal)
@@ -103,7 +106,7 @@ And then the p-value is computed by
 
 ```{r test_gene} 
 pval <- rasp(x=counts.gene, group=genderYRI, 
-            geneidCol = 1, expressionCols = 3:ncol(gene))
+            geneidCol = 1, expressionCols = 3:ncol(counts.gene))
 pval
 ```
 

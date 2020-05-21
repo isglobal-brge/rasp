@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2020-04-01" />
+<meta name="date" content="2020-05-21" />
 
 <title>rasp: analysis of alternative splicing through splicing ratios</title>
 
@@ -1785,10 +1785,10 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">rasp: analysis of alternative splicing through splicing ratios</h1>
-<p class="author-name">Jinxing Wei<span class="affil-mark">1</span>, Pol Cuscó<span class="affil-mark">2</span> and Juan R. Gonzalez<span class="affil-mark">1,2*</span></p>
+<p class="author-name">Jinxing Wei<span class="affil-mark">1</span>, Mikel Esnaola<span class="affil-mark">2</span>, Pol Cuscó<span class="affil-mark">2</span> and Juan R. Gonzalez<span class="affil-mark">1,2*</span></p>
 <p class="author-affiliation"><span class="affil-mark">1</span>Department of Mathematics, Autonomous University of Barcelona (UAB)<br><span class="affil-mark">2</span>Bioinformatics Research Group in Epidemiolgy (BRGE), Barcelona Insitute for Global Health (ISGlobal)</p>
 <p class="author-email"><span class="affil-mark">*</span><a href="mailto:juanr.gonzalez@isglobal.org">juanr.gonzalez@isglobal.org</a></p>
-<h4 class="date">2020-04-01</h4>
+<h4 class="date">2020-05-21</h4>
 <h4 class="package">Package</h4>
 <p>rasp 1.4.0</p>
 
@@ -1849,10 +1849,12 @@ Figure 2: <span class="caption-title">Isforoms plot</span><br>Plot showing splic
 <pre class="r"><code>counts.gene &lt;- YRI[YRI$gene_id==&quot;ENSG00000160741&quot;, ]</code></pre>
 <p>And then the p-value is computed by</p>
 <pre class="r"><code>pval &lt;- rasp(x=counts.gene, group=genderYRI, 
-            geneidCol = 1, expressionCols = 3:ncol(gene))</code></pre>
-<pre><code>Error in ncol(gene): object &#39;gene&#39; not found</code></pre>
-<pre class="r"><code>pval</code></pre>
-<pre><code>Error in eval(expr, envir, enclos): object &#39;pval&#39; not found</code></pre>
+            geneidCol = 1, expressionCols = 3:ncol(counts.gene))
+pval</code></pre>
+<pre><code>                n.exons       pvalue
+ENSG00000160741       3 0.0006169611
+attr(,&quot;class&quot;)
+[1] &quot;rasp&quot;   &quot;matrix&quot;</code></pre>
 <p>Notice that three arguments must be specified. First, which vector is having the groupin variable (<code>group</code>). Then, which column is having the gene ids (<code>gendidCol</code>) and then the columns having the counts or expression (<code>expressionCols</code>) in the <code>x</code> agument.</p>
 <p>The result shows a highly sifnificant p-value indicanting that there are statistically significant differences in the splicing patterns among males and females. The ternary plot in Figure  also shows some differences across sexes. One can observe that females tend to have more RPKMs in the transcript ENST0000046.</p>
 <p>More than one gene can also be analyzed using <code>rasp()</code> function. It is performed by using multiple processors when available. Let us analyze, for instance, the first 5 genes can be studied by</p>
