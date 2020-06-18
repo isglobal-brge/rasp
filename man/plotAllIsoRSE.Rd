@@ -25,4 +25,5 @@ Plot proportional exon expression stored in a RangeSummarizedExperiment object
 \examples{
 data(adipose)
 plotAllIsoRSE("ENSG00000003249.13", adipose.chr16, "inv16p11.2")
+
 }

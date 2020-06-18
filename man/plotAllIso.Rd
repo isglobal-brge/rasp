@@ -4,7 +4,15 @@
 \alias{plotAllIso}
 \title{Plot proportional exon expression}
 \usage{
-plotAllIso(gene, data, group, jitterWidth = 0, inds, isos)
+plotAllIso(
+  gene,
+  data,
+  group,
+  gene_col = "gene_id",
+  jitterWidth = 0,
+  inds,
+  isos
+)
 }
 \arguments{
 \item{gene}{name of the gene to plot.}
@@ -14,6 +22,8 @@ plotAllIso(gene, data, group, jitterWidth = 0, inds, isos)
 
 \item{group}{a `factor` representing the condition of each individual.
 Required if `data` is a `matrix` or `data.fame`, ignored otherwise.}
+
+\item{gene_col}{name of the column that contains the gene IDs.}
 
 \item{jitterWidth}{amount of graphical jitter to use in the plot.}
 
@@ -30,4 +40,5 @@ plotAllIso("ENSG00000003249.13", adipose.chr16, "inv16p11.2")
 
 data(YRI)
 plotAllIso("ENSG00000215915", YRI, attr(YRI, "gender"))
+
 }

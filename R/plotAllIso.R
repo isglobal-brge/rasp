@@ -15,7 +15,11 @@
 #' 
 #' data(YRI)
 #' plotAllIso("ENSG00000215915", YRI, attr(YRI, "gender"))
+#' 
+#' @import ggplot2
 #' @export
+#'  
+
 plotAllIso <- function(gene, data, group, gene_col = 'gene_id', jitterWidth = 0, inds, isos) {
     if (is.data.frame(data))
         x <- data[data[[gene_col]] == gene, ]
@@ -50,19 +54,16 @@ plotAllIso <- function(gene, data, group, gene_col = 'gene_id', jitterWidth = 0,
                                 else rep(1:nrow(xx), ncol(xx)),
                           ind = rep(colnames(xx), each = nrow(xx)),
                           group = rep(group, each = nrow(xx)))
-    gg <- ggplot2::ggplot(data = plotDat, ggplot2::aes(x = ind, y = ratio, col = as.factor(iso)))
-    gg <- gg + ggplot2::geom_point(size = 2.5, shape = 16,
-                                   position = ggplot2::position_jitter(height = 0, width = jitterWidth))
-    gg <- gg + ggplot2::facet_grid(~group, scales = "free_x", space = "free_x")
-    gg <- gg + ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
-                              panel.grid.minor = ggplot2::element_blank(),
-                              panel.background = ggplot2::element_rect(fill = "gray93"),
-                              axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5))
-    gg <- gg + ggplot2::geom_errorbar(ggplot2::aes(ymin = 0, ymax = 1),
-                                      width = 0, linetype = 2, alpha = 0.1)
-    gg <- gg + ggplot2::scale_x_discrete("")
-    gg <- gg + ggplot2::scale_y_continuous("Splicing ratios")
-    gg <- gg + ggplot2::scale_color_discrete("Isoforms")
-    gg <- gg + ggplot2::ggtitle(gene)
+    gg <- ggplot(data = plotDat, aes(x = ind, y = ratio, col = as.factor(iso))) +
+         geom_point(size = 2.5, shape = 16, position = position_jitter(height = 0, 
+                                                                       width = jitterWidth)) +
+        facet_grid(~group, scales = "free_x", space = "free_x") +
+        theme(panel.grid.major = element_blank(),
+                              panel.grid.minor = element_blank(),
+                              panel.background = element_rect(fill = "gray93"),
+                              axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+        geom_errorbar(aes(ymin = 0, ymax = 1), width = 0, linetype = 2, alpha = 0.1) + 
+        scale_x_discrete("") + scale_y_continuous("Splicing ratios") + 
+        scale_color_discrete("Isoforms") +  ggtitle(gene)
     gg
 }

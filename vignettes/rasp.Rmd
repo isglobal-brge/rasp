@@ -39,9 +39,17 @@ opts_chunk$set(message = FALSE, error = TRUE,
 
 # Getting started
 
-This document gives an overview of the R package `rasp`, which provides statistical procedures to study differential splicing among conditions in the context of annotated genomes. That is, isoform information is summarized using the available annotation (at exon or transcript level) using any of the existing tools. This information can provided in RPKM as for instance [FluxCapacitor](http://big.crg.cat/services/flux\_capacitor) does, or using read counts on exons. The statistical methods used in `rasp` are described in @GonCalSam12. The method is based on comparing the variability of the relative expression among conditions using the methodology described in @Anderson06 that can be seen as an ANOVA for the case of having multivariate data (multiple isoforms or exons per gene). The current vesion of the package also allows the user to compare splicing patterns for more than two conditions and adjust for other covariates.
+This document gives an overview of the R package `rasp`, which provides statistical procedures to study differential splicing among conditions in the context of annotated genomes. That is, isoform information is summarized using the available annotation (at exon or transcript level) using any of the existing tools. This information can provided in RPKM as for instance [FluxCapacitor](http://big.crg.cat/services/flux\_capacitor) does, or using read counts on exons. The statistical methods used in `rasp` are described in @GonCalSam12. The method is based on comparing the variability of the relative expression among conditions using the methodology described in @Anderson06 that can be seen as an ANOVA for the case of having multivariate data (multiple isoforms or exons per gene). The current vesion of the package also allows the user to compare splicing patterns for more than two conditions and adjust for other covariates using non-parametric multivariate linear models whose p-values are computed using an asymptotic result described in @garrido2020multivariate.
 
-We should start the R session by loading the library as usual:
+The package can other dependencies can be installed by
+
+```{r install, eval=FALSE}
+devtools::install_github("dgarrimar/mlm")
+devtools::install_github("isglobal-brge/rasp")
+```
+
+
+Then, we should start the R session by loading the library as usual:
 
 
 ```{r, load_rasp}
@@ -191,11 +199,21 @@ The top genes can be obtained by
 topGenes(pvals)
 ```
 
-We observe that the gene ENSG00000197165 (SULT1A2) is hihgly differentially spliced. We can observe as the splicing ratios of exons 11 and 12 are hihgly different among inversion genotypes and as the N allele increase the splicing ratio of exon 10 and decreases for exon 11. Interestingly this inversion and SULT1A2 gene expression have been associated with obesity @gonzalez2019polymorphic, and we see that there is a differntial splicing ratio of inversion genotypes in adipose tissue which is, obiously, a key tissue for obesity.
+We observe that the gene ENSG00000197165 (SULT1A2) is hihgly differentially spliced. This figure shows the splicing ratios of each exon given the inversion genotypes
+
+
+```{r plotGeneAdipose, fig.cap="Splicing ratios for adipose tissue (GTEx) and inversion 16p11.2. Plot shows splicing ratios of each inversion genotype for all exons in gene SULT1A2 (ENSG00000197165)."}
+genePlot(adipose, gene="ENSG00000197165.10", condition="inv16p11.2", 
+         title="Splicing of SULT1A2 gene and inversion at 16p11.2")
+```
+
+
+
+We can observe as the splicing ratios of exons 11 and 12 are hihgly different among inversion genotypes and as the N allele increase the splicing ratio of exon 10 and decreases for exon 11. Interestingly this inversion and SULT1A2 gene expression have been associated with obesity @gonzalez2019polymorphic, and we see that there is a differntial splicing ratio of inversion genotypes in adipose tissue which is, obiously, a key tissue for obesity.
 
 ```{r plotAllIsoAdipose, fig.cap="Isforoms plot for lung tissue (GTEx) and inversion 16p11.2. Plot showing splicing ratios of each inversion genotype for all exons in gene ENSG00000197165.10 ."}
 plotAllIsoRSE("ENSG00000197165.10", data = adipose, 
-              group = "inv16p11.2", ind=1:100, iso=9:12)
+              group = "inv16p11.2", ind=1:100, exons=9:12)
 ```
 
 # References

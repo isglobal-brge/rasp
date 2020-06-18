@@ -1,8 +1,8 @@
 Package: rasp
 Type: Package
 Title: Differential alternative splicing test.
-Version: 1.4.0
-Date: 2020-03-09
+Version: 1.5.0
+Date: 2020-06-16
 Author: Juan R Gonzalez <juanr.gonzalez@isglobal.org> 
 Depends: R (>= 3.5)
 Imports:
