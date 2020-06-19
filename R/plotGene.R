@@ -1,4 +1,4 @@
-#' Plot splicing ratios for each exon in a given gene
+#' Plot splicing ratio boxplot by condition for each exon in a given gene
 #'
 #' @param data expression dataset. Must be of class `RangedSummarizedExperiment`.
 #' @gene gene to be plotted.
@@ -8,21 +8,22 @@
 #' @param xlab x-axix label. Optional.
 #' @examples
 #' data(adipose)
-#' genePlot(adipose.chr16, gene="ENSG00000197165.10", condition="inv16p11.2")
+#' plotGene(adipose.chr16, gene="ENSG00000197165.10", condition="inv16p11.2")
 #' 
-#' @import ggplot2
+#' @import ggplot2 
+#' @import tibble tibble
 #' @export
 #' 
 
-genePlot <- function(data, gene, condition = NULL,  title = NULL, 
+plotGene <- function(data, gene, condition = NULL,  title = NULL, 
                      ylab = "exon relative abundance", 
-                     xlab="Condition"){
+                     xlab="Exons"){
 
     sel <- which(rownames(data) %in% gene)
     if(length(sel)==0)
         stop("This gene is not in your RSE object")
     exonCounts <- SummarizedExperiment::assay(data[sel, ])
-    exonNames <- factor(1:nrow(exonCounts), levels=1:nrow(exonCounts))
+    exonNames <- 1:nrow(exonCounts)
     rownames(exonCounts) <- exonNames
 
     pheno <- SummarizedExperiment::colData(data)
@@ -38,11 +39,9 @@ genePlot <- function(data, gene, condition = NULL,  title = NULL,
     exonCounts <- exonCounts[, non.all.zero]
     condition <- condition[non.all.zero]
     xx <- apply(exonCounts, 2, function(y) y / sum(y))
-    plotDat <- data.frame(ratio = c(xx),
-                          exon = rep(rownames(xx), ncol(xx)),
+    plotDat <- tibble(ratio = c(xx),
+                          exon = rep(exonNames, ncol(xx)),
                           condition = rep(condition, each = nrow(xx)))
-    levels(plotDat$exon) <- levels(exonNames) 
-
     gg <- ggplot(plotDat, aes(x = condition, y = ratio, fill=condition)) + 
         geom_boxplot() + 
         facet_grid(. ~ exon) + 

@@ -19,8 +19,8 @@
 #' @export
 plotTernary <- function(x, gene, group, geneCol = 1, transCol = 2, transcripts, ...) {
   if (missing(transcripts)) transcripts <- 1:3
-  else if (!inherits(transcripts, "numeric")) stop("'transcripts' must be a numeric index")
-  else if (length(transcripts) != 3) stop("Please specify 3 transcripts")
+  if (any(!is.numeric(transcripts))) stop("'transcripts' must be a numeric index")
+  if (length(transcripts) != 3) stop("Please specify 3 transcripts")
 
   if (inherits(x, "RangedSummarizedExperiment") |
       inherits(x, "SummarizedExperiment")) {

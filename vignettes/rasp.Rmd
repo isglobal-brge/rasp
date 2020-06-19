@@ -203,17 +203,17 @@ We observe that the gene ENSG00000197165 (SULT1A2) is hihgly differentially spli
 
 
 ```{r plotGeneAdipose, fig.cap="Splicing ratios for adipose tissue (GTEx) and inversion 16p11.2. Plot shows splicing ratios of each inversion genotype for all exons in gene SULT1A2 (ENSG00000197165)."}
-genePlot(adipose, gene="ENSG00000197165.10", condition="inv16p11.2", 
+plotGene(adipose, gene="ENSG00000197165.10", condition="inv16p11.2", 
          title="Splicing of SULT1A2 gene and inversion at 16p11.2")
 ```
 
 
 
-We can observe as the splicing ratios of exons 11 and 12 are hihgly different among inversion genotypes and as the N allele increase the splicing ratio of exon 10 and decreases for exon 11. Interestingly this inversion and SULT1A2 gene expression have been associated with obesity @gonzalez2019polymorphic, and we see that there is a differntial splicing ratio of inversion genotypes in adipose tissue which is, obiously, a key tissue for obesity.
+We can observe, for instance, as the splicing ratios of exons 6 and 10 are  different among inversion genotypes. In particular, N allele increases the splicing ratio of exon 6 and decreases for exon 10. In the next figure we can observe this pattern as well as how the exon 1 does not present changes among inversion genotypes. Interestingly this inversion and SULT1A2 gene expression have been associated with obesity @gonzalez2019polymorphic, and we see that there is a differntial splicing ratio of inversion genotypes in adipose tissue which is, obiously, a key tissue for obesity.
 
 ```{r plotAllIsoAdipose, fig.cap="Isforoms plot for lung tissue (GTEx) and inversion 16p11.2. Plot showing splicing ratios of each inversion genotype for all exons in gene ENSG00000197165.10 ."}
-plotAllIsoRSE("ENSG00000197165.10", data = adipose, 
-              group = "inv16p11.2", ind=1:100, exons=9:12)
+plotSplicingRatios("ENSG00000197165.10", data = adipose, 
+              condition = "inv16p11.2", ind=1:200, exons=c(1,3,10))
 ```
 
 # References
