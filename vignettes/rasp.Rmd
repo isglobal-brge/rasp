@@ -99,7 +99,7 @@ plotTernary(YRI, "ENSG00000160741", transcripts=1:3)
 
 We can also compare the splicing ratios for a group of individuals using the `group` argument. For instance, next figure illustrat the splicing of males and females for the gene JRK (ENSG00000234616) and we can observe a very different pattern having females higher splicing ratios of exon ENST00000413868.
 
-```{r plotTernaryGender, fig.cap="Ternary plot. Ternary plot corresponding to the splicing ratios of three transcripts (1st, 2nd and 3rd) belonging to gene SRY in males and females."}
+```{r plotTernaryGender, fig.cap="Ternary plot by gender status. Ternary plot corresponding to the splicing ratios of three transcripts (1st, 2nd and 3rd) belonging to gene SRY in males and females."}
 plotTernary(YRI, "ENSG00000234616", group = genderYRI, transcripts=1:3)
 ```
 
