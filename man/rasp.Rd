@@ -13,7 +13,7 @@ rasp(
   filterInd = 0.1,
   filterExon = 0.05,
   transform = "none",
-  cores = parallel::detectCores() - 1,
+  cores = 1,
   ...
 )
 }

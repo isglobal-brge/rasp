@@ -4,7 +4,7 @@ Title: Differential alternative splicing test.
 Version: 1.5.0
 Date: 2020-06-16
 Author: Juan R Gonzalez <juanr.gonzalez@isglobal.org> 
-Depends: R (>= 3.5)
+Depends: R (>= 3.5), doParallel
 Imports:
   DirichletReg,
   doSNOW,
@@ -12,10 +12,11 @@ Imports:
   ggplot2,
   mlm,
   parallel,
+  doParallel,
   SummarizedExperiment
 Maintainer: Juan R Gonzalez <juanr.gonzalez@isglobal.org>
 Description: Test for differential alternative splicing across two or more conditions.
 License: MIT
 LazyLoad: yes
 Encoding: UTF-8
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
