@@ -56,7 +56,7 @@ rasp <- function(formula, x, group, expressionCols, geneidCol,
       
       if (!is.factor(data$group)) stop(paste(vars[1], "should be a factor"))
 
-      x <- lapply(split(x, rownames(x)), SummarizedExperiment::assay)
+      x <- mclapply(split(x, rownames(x)), SummarizedExperiment::assay, cores = cores)
 
     } else {
       if (missing(group))
@@ -76,18 +76,6 @@ rasp <- function(formula, x, group, expressionCols, geneidCol,
       pb <- txtProgressBar(max = length(x), style = 3)
       opts <- list(progress = function(i) setTxtProgressBar(pb, i))
     
-       # ans <- foreach::`%dopar%`(foreach::foreach (i = 1:length(x),
-       #                                           .export = "testRasp",
-       #                                           .options.snow = opts), {
-       # nm <- names(x)[i]
-       # if (all(x[[nm]] == 0)) NA # mlm crashes on empty (0 count) genes.
-       # else if (nrow(x[[nm]]) == 1) NA # mlm crashes on single exon genes.
-       # else testRasp(t(x[[nm]]), data = data, 
-       #               filterInd = filterInd,
-       #               filterExon = filterExon, 
-       #               transform = transform, ...)
-       # })
-
       ans <- foreach (i = 1:length(x),.export = "testRasp",.options.snow = opts) %dopar% {
         nm <- names(x)[i]
         if (all(x[[nm]] == 0)) NA # mlm crashes on empty (0 count) genes.
